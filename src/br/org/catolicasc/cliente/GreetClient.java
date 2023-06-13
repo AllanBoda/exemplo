@@ -1,4 +1,4 @@
-package br.org.catolicasc.cliente;
+package br.org.catolicasc.client;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,25 +14,33 @@ public class GreetClient {
 
     public void start(String ip, int port) throws IOException {
         clientSocket = new Socket(ip, port);
-        // Handler para escrita de dados
+        // handler para escrita de dados
         out = new PrintWriter(clientSocket.getOutputStream(), true);
-        // Handler para leitura de dados
+        // handler lara leitura de dados
         in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
-        clientHandler();
-    }
+        System.out.println("Conexão estabelecida com o servidor.");
 
-    private void clientHandler() throws IOException {
-        Scanner scanner = new Scanner(System.in);
-        String message;
-        String response;
-        do {
-            System.out.print("Client: ");
-            message = scanner.nextLine();
-            out.println(message); // Manda a mensagem para o socket
-            response = in.readLine(); // Recebe a resposta do socket
-            System.out.println("Server: " + response);
-        } while (!message.equals("!quit"));
+        // Manter a conexão até receber uma mensagem tipo "!quit"
+        while (true) {
+            // Ler a entrada do usuário com Scanner
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Digite uma mensagem: ");
+            String message = scanner.nextLine();
+            out.println(message);  // enviar a mensagem para o servidor
+
+            // Verificar se o cliente enviou a mensagem de encerramento
+            if ("!quit".equals(message)) {
+                System.out.println("Conexão encerrada pelo cliente.");
+                break;
+            }
+
+            // Receber a resposta do servidor
+            String response = in.readLine();
+            System.out.println("Resposta do servidor: " + response);
+        }
+
+        stop();
     }
 
     public void stop() {
@@ -51,8 +59,6 @@ public class GreetClient {
             client.start("127.0.0.1", 12345);
         } catch (IOException ex) {
             throw new RuntimeException(ex);
-        } finally {
-            client.stop();
         }
     }
 }

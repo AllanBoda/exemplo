@@ -14,34 +14,38 @@ public class GreetServer {
     private BufferedReader in;
 
     public void start(int port) throws IOException {
-        // Inicializar atributos
-        serverSocket = new ServerSocket(port); // Escuta na porta port
-        clientSocket = serverSocket.accept(); // Espera conexão
+        // inicializar atributos
+        serverSocket = new ServerSocket(port);  // escuta na porta port
+        System.out.println("Servidor iniciado. Aguardando conexão...");
 
-        // Handler para escrita de dados
-        out = new PrintWriter(clientSocket.getOutputStream(), true);
-        // Handler para leitura de dados
-        in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+        while (true) {
+            clientSocket = serverSocket.accept();  // espera conexão
+            System.out.println("Conexão estabelecida com o cliente.");
 
-        clientHandler();
+            // handler para escrita de dados
+            out = new PrintWriter(clientSocket.getOutputStream(), true);
+            // handler para leitura de dados
+            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+
+            clientHandler();
+
+            // Verificar se o cliente enviou a mensagem de encerramento
+            String quitMessage = in.readLine();
+            if ("!quit".equals(quitMessage)) {
+                System.out.println("Cliente encerrou a conexão.");
+                break;
+            }
+        }
+        stop();
     }
 
     private void clientHandler() throws IOException {
-        String message;
-        do {
-            message = in.readLine();
-            if (message != null) {
-                System.out.println("Client: " + message);
-                if ("!quit".equals(message)) {
-                    out.println("Server disconnected.");
-                    break;
-                } else {
-                    System.out.print("Server: ");
-                    String response = System.console().readLine();
-                    out.println(response);
-                }
-            }
-        } while (true);
+        String greeting = in.readLine();
+        if ("hello server".equals(greeting)) {
+            out.println("hello client");
+        } else {
+            out.println("Mensagem incorreta.");
+        }
     }
 
     public void stop() {
@@ -61,8 +65,6 @@ public class GreetServer {
             server.start(12345);
         } catch (IOException e) {
             throw new RuntimeException(e);
-        } finally {
-            server.stop();
         }
     }
 }
