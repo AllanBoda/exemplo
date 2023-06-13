@@ -1,4 +1,4 @@
-package br.org.catolicasc.client;
+package br.org.catolicasc.cliente;
 
 import java.io.BufferedReader;
 import java.io.IOException;
